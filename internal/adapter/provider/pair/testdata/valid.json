@@ -1,0 +1,16 @@
+[
+    {
+        "base": "BTC",
+        "quote": "USDT",
+        "priceTick": 1,
+        "qtyTick": 1,
+        "status": "trading"
+    },
+    {
+        "base": "TON",
+        "quote": "USDT",
+        "priceTick": 1,
+        "qtyTick": 1,
+        "status": "halted"
+    }
+]

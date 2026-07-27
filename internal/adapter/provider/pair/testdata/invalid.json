@@ -1,0 +1,9 @@
+[
+    {
+        "base": "BTC",
+        "quote": "USDT",
+        "priceTick": -100,
+        "qtyTick": 1,
+        "status": "trading"
+    }
+]
