@@ -41,7 +41,7 @@ func NewOrder(
 		return nil, sentinel.BadRequest(&FieldNotPositiveError{FieldName: "Remaining", Value: remaining})
 	}
 
-	return &Order{
+	order := &Order{
 		ID:        id,
 		UserID:    userID,
 		Side:      side,
@@ -50,5 +50,26 @@ func NewOrder(
 		Amount:    amount,
 		Remaining: remaining,
 		CreatedAt: createdAt,
-	}, nil
+	}
+
+	return order, nil
+}
+
+type OrderCreatedEvent struct {
+	CreatedAt time.Time
+	Order     *Order
+	ID        uuid.UUID
+}
+
+func NewOrderCreatedEvent(o *Order) *OrderCreatedEvent {
+	id, err := uuid.NewV7()
+	if err != nil {
+		panic(err)
+	}
+
+	return &OrderCreatedEvent{
+		ID:        id,
+		Order:     o,
+		CreatedAt: o.CreatedAt,
+	}
 }
