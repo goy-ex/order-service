@@ -92,7 +92,7 @@ func TestOrderRepoInsertWithEvent_DuplicateOrder(t *testing.T) {
 	require.NoError(t, err)
 
 	err = orderRepo.InsertWithEvent(context.Background(), &order, event)
-	require.NoError(t, err)
+	require.Error(t, err)
 
 	tx.Rollback(context.Background())
 }
@@ -114,7 +114,7 @@ func TestOrderRepoInsertWithEvent_DuplicateEvent(t *testing.T) {
 
 	order2 := fixture.NewValidOrder()
 	err = orderRepo.InsertWithEvent(context.Background(), &order2, event)
-	require.NoError(t, err)
+	require.Error(t, err)
 
 	tx.Rollback(context.Background())
 }
