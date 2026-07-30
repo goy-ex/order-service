@@ -8,6 +8,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+//nolint:funlen // tabletest
 func TestOrder_New(t *testing.T) {
 	t.Parallel()
 
