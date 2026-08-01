@@ -55,9 +55,6 @@ jobs:
         with:
           path: public
 
-      - uses: actions/deploy-pages@v4
-        id: deployment
-
   deploy-pages:
     name: Deploy Pages
     needs: buildunit
