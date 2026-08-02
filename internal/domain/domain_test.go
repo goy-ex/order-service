@@ -112,7 +112,7 @@ func TestPair_New(t *testing.T) {
 				require.NoError(t, err)
 			},
 		},
-		"bad_status": {
+		"invalid_status": {
 			pair: func() domain.Pair {
 				valid := fixture.NewValidPair()
 				valid.Status = 42
@@ -126,7 +126,7 @@ func TestPair_New(t *testing.T) {
 
 				require.ErrorAs(t, err, &target)
 				require.Equal(t, "Status", target.FieldName)
-				require.Equal(t, "?", target.Value)
+				require.Equal(t, "invalid(42)", target.Value)
 			},
 		},
 		"bad_price_tick": {
