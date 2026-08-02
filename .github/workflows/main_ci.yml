@@ -1,0 +1,71 @@
+name: Main CI
+
+on:
+  pull_request:
+    types: [closed]
+    branches: [main]
+
+jobs:
+  create-redoc:
+    name: Create Redoc artifact
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-26.04
+    permissions:
+      contents: read
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.merge_commit_sha }}
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Generate Redoc HTML
+        run: |
+          npx @redocly/cli@latest build-docs api/openapi.yml -o redoc.html
+
+      - name: Upload Redoc artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: redoc
+          path: redoc.html
+          retention-days: 30
+  
+  deploy-gh-pages:
+    name: Deploy GitHub Pages
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-26.04
+    needs: create-redoc
+    permissions:
+      pages: write
+      id-token: write
+      actions: read
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    timeout-minutes: 5
+    steps:
+      - name: Download Redoc artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: redoc
+          path: public
+
+      - name: Download coverage artifact
+        uses: dawidd6/action-download-artifact@v6
+        with:
+          workflow: dev_ci.yml
+          commit: ${{ github.event.pull_request.head.sha }}
+          name: coverage
+          path: public
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: public
+
+      - uses: actions/deploy-pages@v4
+        id: deployment

@@ -1,0 +1,46 @@
+name: Dev CI
+
+on:
+  push:
+    branches: ["feature/*"]
+
+concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}
+      cancel-in-progress: true
+
+jobs:
+  build-and-test:
+    name: Build and test
+    runs-on: ubuntu-26.04
+    permissions:
+      contents: read
+    
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: "1.26.4"
+          cache: true
+
+      - name: Build
+        run: go build ./...
+
+      - name: Run tests with coverage
+        run: go test -race -coverprofile=coverage.out -covermode=atomic ./...
+
+      - name: Generate HTML coverage report
+        run: go tool cover -html=coverage.out -o coverage.html
+
+      - name: Upload coverage artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage
+          path: coverage.html
+          retention-days: 30
+
+      - name: Show total coverage
+        run: go tool cover -func=coverage.out

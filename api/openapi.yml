@@ -1,0 +1,73 @@
+openapi: 3.0.3
+info:
+  title: order-service API
+  version: 1.0.0
+  description: desc
+servers:
+  - url: http://localhost:8080
+
+paths:
+  /orders:
+    post:
+      summary: Create order
+      operationId: createOrder
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateOrderRequest'
+      responses:
+        '201':
+          description: Order created
+          headers:
+            Location:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+
+components:
+  schemas:
+    CreateOrderRequest:
+      type: object
+      required: [base, quote, side, price, qty, remaining]
+      properties:
+        pair:
+          type: string
+          example: BTC
+        quote:
+          type: string
+          example: USDT
+        side:
+          type: string
+          enum: [bid, ask]
+        price:
+          type: string
+          example: "10000"
+        qty:
+          type: string
+          example: "10000"
+        remaining:
+          type: string
+          example: "10000"
+    OrderResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+
+    APIError:
+      type: object
+      properties:
+        error:
+          type: string
