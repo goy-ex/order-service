@@ -41,6 +41,10 @@ func NewOrder(
 		return nil, sentinel.BadRequest(&FieldNotPositiveError{FieldName: "Remaining", Value: remaining})
 	}
 
+	if !side.IsValid() {
+		return nil, sentinel.BadRequest(&NoSuchOptionError{FieldName: "Side", Value: side.String()})
+	}
+
 	order := &Order{
 		ID:        id,
 		UserID:    userID,
