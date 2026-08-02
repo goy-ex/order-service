@@ -29,7 +29,7 @@ type ServerConfig struct {
 
 type Config struct {
 	KafkaBrokers    string `env:"KAFKA_BROKERS,required"`
-	DBConnString    string `env:"DB_CONN_STRING",required`
+	DBConnString    string `env:"DB_CONN_STRING,required"`
 	Pairs           PairsConfig
 	Assets          AssetsConfig
 	Server          ServerConfig
