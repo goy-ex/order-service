@@ -1,36 +1,49 @@
 package domain
 
-import "github.com/goy-ex/sentinel"
+import (
+	"strconv"
+
+	"github.com/goy-ex/sentinel"
+)
 
 type PairStatus byte
 
 const (
-	PairStatusHalted  = 0
-	PairStatusTrading = 1
+	pairStatusInvalid  = 0
+	PairStatusInactive = 1
+	PairStatusActive   = 2
 )
 
-func (ps PairStatus) IsValid() bool {
-	switch ps {
-	case PairStatusHalted, PairStatusTrading:
+func (s PairStatus) IsValid() bool {
+	switch s {
+	case PairStatusInactive, PairStatusActive:
 		return true
 	default:
 		return false
 	}
 }
 
-func (ps PairStatus) String() string {
-	switch ps {
-	case PairStatusHalted:
-		return "halted"
-	case PairStatusTrading:
-		return "trading"
+func (s PairStatus) String() string {
+	switch s {
+	case PairStatusInactive:
+		return "inactive"
+	case PairStatusActive:
+		return "active"
 	default:
-		return "?"
+		return "invalid(" + strconv.Itoa(int(s)) + ")"
 	}
 }
 
-type Price int64
-type Quantity int
+func PairStatusFromString(s string) PairStatus {
+	switch s {
+	case "inactive":
+		return PairStatusInactive
+	case "active":
+		return PairStatusActive
+	default:
+		return pairStatusInvalid
+	}
+}
 
 type Pair struct {
 	Base      string
