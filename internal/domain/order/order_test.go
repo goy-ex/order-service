@@ -39,7 +39,7 @@ func TestNewOrder(t *testing.T) {
 			check: func(t *testing.T, err error) {
 				t.Helper()
 
-				var target *domain.FieldNotPositiveError
+				var target *domain.NotPositiveNumberError
 				require.ErrorAs(t, err, &target)
 				require.Equal(t, "Price", target.FieldName)
 				require.Equal(t, 0, target.Value)
@@ -55,7 +55,7 @@ func TestNewOrder(t *testing.T) {
 			check: func(t *testing.T, err error) {
 				t.Helper()
 
-				var target *domain.FieldNotPositiveError
+				var target *domain.NotPositiveNumberError
 				require.ErrorAs(t, err, &target)
 				require.Equal(t, "Amount", target.FieldName)
 				require.Equal(t, 0, target.Value)
@@ -71,7 +71,7 @@ func TestNewOrder(t *testing.T) {
 			check: func(t *testing.T, err error) {
 				t.Helper()
 
-				var target *domain.FieldNotPositiveError
+				var target *domain.NotPositiveNumberError
 				require.ErrorAs(t, err, &target)
 				require.Equal(t, "Remaining", target.FieldName)
 				require.Equal(t, 0, target.Value)

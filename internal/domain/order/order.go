@@ -32,15 +32,15 @@ func NewOrder(
 	createdAt time.Time,
 ) (*Order, error) {
 	if price <= 0 {
-		return nil, sentinel.BadRequest(&domain.FieldNotPositiveError{FieldName: "Price", Value: price})
+		return nil, sentinel.BadRequest(&domain.NotPositiveNumberError{FieldName: "Price", Value: price})
 	}
 
 	if qty <= 0 {
-		return nil, sentinel.BadRequest(&domain.FieldNotPositiveError{FieldName: "Amount", Value: qty})
+		return nil, sentinel.BadRequest(&domain.NotPositiveNumberError{FieldName: "Amount", Value: qty})
 	}
 
 	if remainingQty <= 0 {
-		return nil, sentinel.BadRequest(&domain.FieldNotPositiveError{FieldName: "Remaining", Value: remainingQty})
+		return nil, sentinel.BadRequest(&domain.NotPositiveNumberError{FieldName: "Remaining", Value: remainingQty})
 	}
 
 	if !side.IsValid() {

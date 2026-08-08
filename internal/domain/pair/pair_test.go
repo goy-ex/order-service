@@ -52,7 +52,7 @@ func TestNewPair(t *testing.T) {
 			checkErr: func(t *testing.T, err error) {
 				t.Helper()
 
-				var target *domain.FieldNotPositiveError
+				var target *domain.NotPositiveNumberError
 
 				require.ErrorAs(t, err, &target)
 				require.Equal(t, "PriceTick", target.FieldName)
@@ -69,7 +69,7 @@ func TestNewPair(t *testing.T) {
 			checkErr: func(t *testing.T, err error) {
 				t.Helper()
 
-				var target *domain.FieldNotPositiveError
+				var target *domain.NotPositiveNumberError
 
 				require.ErrorAs(t, err, &target)
 				require.Equal(t, "QtyTick", target.FieldName)
