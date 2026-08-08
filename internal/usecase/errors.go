@@ -1,5 +1,7 @@
 package usecase
 
+import "errors"
+
 // PairNotFoundError indicates that no trading pair is registered under the
 // given key.
 type PairNotFoundError struct {
@@ -11,3 +13,5 @@ type PairNotFoundError struct {
 func (e *PairNotFoundError) Error() string {
 	return "pair '" + e.PairKey + "' not found"
 }
+
+var ErrNilInput = errors.New("usecase input is nil")
