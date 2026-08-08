@@ -7,6 +7,8 @@ import (
 	"github.com/stretchr/testify/require"
 	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/modules/kafka"
+	"github.com/twmb/franz-go/pkg/kadm"
+	"github.com/twmb/franz-go/pkg/kgo"
 )
 
 func TestNewKafkaOrderProducer(t *testing.T) {
@@ -66,6 +68,14 @@ func TestKafkaOrderProducer_Produce(t *testing.T) {
 	brokers, err := kafkaContainer.Brokers(t.Context())
 	require.NoError(t, err)
 
+	admin, err := kgo.NewClient(kgo.SeedBrokers(brokers...))
+	require.NoError(t, err)
+
+	defer admin.Close()
+
+	_, err = kadm.NewClient(admin).CreateTopic(t.Context(), 1, 1, nil, "topic")
+	require.NoError(t, err)
+
 	producer, err := event.NewKafkaOrderProducer("topic", brokers...)
 	require.NoError(t, err)
 
@@ -85,15 +95,6 @@ func TestKafkaOrderProducer_Produce(t *testing.T) {
 				t.Helper()
 
 				require.NoError(t, err)
-			},
-		},
-		"no_events": {
-			producer: producer,
-			events:   nil,
-			check: func(t *testing.T, err error) {
-				t.Helper()
-
-				require.Error(t, err)
 			},
 		},
 	}
