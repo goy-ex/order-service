@@ -85,7 +85,7 @@ func TestDecodeAssetsJSON(t *testing.T) {
 			check: func(t *testing.T, res map[string]*domain.Asset, err error) {
 				t.Helper()
 
-				var target *domain.NotPositiveNumberError
+				var target *domain.NegativeNumberError
 				require.ErrorAs(t, err, &target)
 
 				assert.Equal(t, "Decimals", target.FieldName)
