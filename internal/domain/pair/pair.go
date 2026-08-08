@@ -15,14 +15,14 @@ type Pair struct {
 
 func NewPair(base, quote string, priceTick, qtyTick int, status PairStatus) (*Pair, error) {
 	if priceTick <= 0 {
-		return nil, sentinel.BadRequest(&domain.FieldNotPositiveError{
+		return nil, sentinel.BadRequest(&domain.NotPositiveNumberError{
 			FieldName: "PriceTick",
 			Value:     priceTick,
 		})
 	}
 
 	if qtyTick <= 0 {
-		return nil, sentinel.BadRequest(&domain.FieldNotPositiveError{
+		return nil, sentinel.BadRequest(&domain.NotPositiveNumberError{
 			FieldName: "QtyTick",
 			Value:     qtyTick,
 		})
