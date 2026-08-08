@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/goy-ex/order-service/internal/domain"
+	pairpkg "github.com/goy-ex/order-service/internal/domain/pair"
 	"github.com/goy-ex/order-service/internal/pkg/kvdecoder"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -84,7 +85,7 @@ func TestDecodeAssetsJSON(t *testing.T) {
 			check: func(t *testing.T, res map[string]*domain.Asset, err error) {
 				t.Helper()
 
-				var target *domain.FieldNotPositiveError
+				var target *domain.NotPositiveNumberError
 				require.ErrorAs(t, err, &target)
 
 				assert.Equal(t, "Decimals", target.FieldName)
@@ -117,7 +118,7 @@ func TestDecodePairsJSON(t *testing.T) {
 
 	type testcase struct {
 		reader io.Reader
-		check  func(t *testing.T, res map[domain.PairKey]*domain.Pair, err error)
+		check  func(t *testing.T, res map[pairpkg.PairKey]*pairpkg.Pair, err error)
 	}
 
 	testcases := map[string]testcase{
@@ -133,12 +134,12 @@ func TestDecodePairsJSON(t *testing.T) {
     }
 ]`,
 			),
-			check: func(t *testing.T, res map[domain.PairKey]*domain.Pair, err error) {
+			check: func(t *testing.T, res map[pairpkg.PairKey]*pairpkg.Pair, err error) {
 				t.Helper()
 
 				require.NoError(t, err)
 
-				pair, ok := res[domain.NewPairKey("BTC", "USDT")]
+				pair, ok := res[pairpkg.NewPairKey("BTC", "USDT")]
 				require.True(t, ok)
 				assert.Equal(t, "BTC", pair.Base)
 				assert.Equal(t, "USDT", pair.Quote)
@@ -149,7 +150,7 @@ func TestDecodePairsJSON(t *testing.T) {
 		},
 		"invalid_syntax": {
 			reader: strings.NewReader("lorem ipsum"),
-			check: func(t *testing.T, res map[domain.PairKey]*domain.Pair, err error) {
+			check: func(t *testing.T, res map[pairpkg.PairKey]*pairpkg.Pair, err error) {
 				t.Helper()
 
 				var target *json.SyntaxError
@@ -169,7 +170,7 @@ func TestDecodePairsJSON(t *testing.T) {
     }
 ]`,
 			),
-			check: func(t *testing.T, res map[domain.PairKey]*domain.Pair, err error) {
+			check: func(t *testing.T, res map[pairpkg.PairKey]*pairpkg.Pair, err error) {
 				t.Helper()
 
 				var target *json.UnmarshalTypeError
@@ -189,10 +190,10 @@ func TestDecodePairsJSON(t *testing.T) {
     }
 ]`,
 			),
-			check: func(t *testing.T, res map[domain.PairKey]*domain.Pair, err error) {
+			check: func(t *testing.T, res map[pairpkg.PairKey]*pairpkg.Pair, err error) {
 				t.Helper()
 
-				var target *domain.FieldNotPositiveError
+				var target *domain.NotPositiveNumberError
 				require.ErrorAs(t, err, &target)
 
 				assert.Equal(t, "PriceTick", target.FieldName)
@@ -201,7 +202,7 @@ func TestDecodePairsJSON(t *testing.T) {
 		},
 		"empty": {
 			reader: strings.NewReader("[]"),
-			check: func(t *testing.T, res map[domain.PairKey]*domain.Pair, err error) {
+			check: func(t *testing.T, res map[pairpkg.PairKey]*pairpkg.Pair, err error) {
 				t.Helper()
 
 				require.NoError(t, err)

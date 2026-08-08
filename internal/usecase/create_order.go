@@ -7,6 +7,8 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/goy-ex/order-service/internal/domain"
+	orderpkg "github.com/goy-ex/order-service/internal/domain/order"
+	pairpkg "github.com/goy-ex/order-service/internal/domain/pair"
 	"github.com/goy-ex/sentinel"
 )
 
@@ -42,23 +44,28 @@ func NewCreateOrderUseCase(
 // received from the transport layer, before pair resolution and domain
 // validation.
 type CreateOrderInput struct {
-	Base      string
-	Quote     string
-	Side      string
-	Price     int64
-	Amount    int64
-	Remaining int64
-	UserID    uuid.UUID
+	Base         string
+	Quote        string
+	Side         string
+	Price        int64
+	Qty          int64
+	RemainingQty int64
+	UserID       uuid.UUID
 }
 
-var ErrNilInput = errors.New("usecase input is nil")
-
 func (uc *createOrderUseCase) Invoke(ctx context.Context, in *CreateOrderInput) error {
+	logger, ok := ctx.Value(LoggerKey).(Logger)
+	if !ok {
+		return sentinel.InvariantViolation(errors.New("failed to get logger"))
+	}
+
+	logger.Info("success getting logger")
+
 	if in == nil {
 		return sentinel.BadRequest(ErrNilInput)
 	}
 
-	pairKey := domain.NewPairKey(in.Base, in.Quote)
+	pairKey := pairpkg.NewPairKey(in.Base, in.Quote)
 
 	pair := uc.pairs.ReadByKey(pairKey)
 	if pair == nil {
@@ -67,24 +74,31 @@ func (uc *createOrderUseCase) Invoke(ctx context.Context, in *CreateOrderInput) 
 
 	orderID, err := uuid.NewV7()
 	if err != nil {
-		panic(fmt.Errorf("failed to generate order's UUID (v7): %w", err))
+		return fmt.Errorf("failed to generate order's UUID (v7): %w", err)
 	}
 
-	order, err := domain.NewOrder(
+	order, err := orderpkg.NewOrder(
 		orderID,
 		in.UserID,
 		pair,
 		domain.SideFromString(in.Side),
 		int(in.Price),
-		int(in.Amount),
-		int(in.Remaining),
+		int(in.Qty),
+		int(in.RemainingQty),
 		uc.clock.Now(),
 	)
 	if err != nil {
 		return fmt.Errorf("failed to create order: %w", err)
 	}
 
-	err = uc.orders.InsertWithEvent(ctx, order, domain.NewOrderCreatedEvent(order))
+	id, err := uuid.NewV7()
+	if err != nil {
+		panic(err)
+	}
+
+	event := orderpkg.NewOrderCreated(id, order)
+
+	err = uc.orders.InsertWithEvent(ctx, event)
 	if err != nil {
 		return fmt.Errorf("failed to insert order: %w", err)
 	}

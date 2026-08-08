@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/goy-ex/order-service/internal/domain"
+	pairpkg "github.com/goy-ex/order-service/internal/domain/pair"
 )
 
 type pairJSONDTO struct {
@@ -16,7 +16,7 @@ type pairJSONDTO struct {
 	QtyTick   int    `json:"qtyTick"`
 }
 
-func DecodePairsJSON(r io.Reader) (map[domain.PairKey]*domain.Pair, error) {
+func DecodePairsJSON(r io.Reader) (map[pairpkg.PairKey]*pairpkg.Pair, error) {
 	dec := json.NewDecoder(r)
 
 	var dtos []pairJSONDTO
@@ -26,21 +26,21 @@ func DecodePairsJSON(r io.Reader) (map[domain.PairKey]*domain.Pair, error) {
 		return nil, fmt.Errorf("failed to decode JSON: %w", err)
 	}
 
-	pairMap := make(map[domain.PairKey]*domain.Pair, len(dtos))
+	pairMap := make(map[pairpkg.PairKey]*pairpkg.Pair, len(dtos))
 
 	for _, dto := range dtos {
-		pair, err := domain.NewPair(
+		pair, err := pairpkg.NewPair(
 			dto.Base,
 			dto.Quote,
 			dto.PriceTick,
 			dto.QtyTick,
-			domain.PairStatusFromString(dto.Status),
+			pairpkg.PairStatusFromString(dto.Status),
 		)
 		if err != nil {
 			return nil, fmt.Errorf("failed to create pair: %w", err)
 		}
 
-		pairMap[domain.NewPairKey(dto.Base, dto.Quote)] = pair
+		pairMap[pairpkg.NewPairKey(dto.Base, dto.Quote)] = pair
 	}
 
 	return pairMap, nil

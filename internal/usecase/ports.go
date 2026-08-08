@@ -4,11 +4,12 @@ import (
 	"context"
 	"time"
 
-	"github.com/goy-ex/order-service/internal/domain"
+	orderpkg "github.com/goy-ex/order-service/internal/domain/order"
+	pairpkg "github.com/goy-ex/order-service/internal/domain/pair"
 )
 
 type OrderRepo interface {
-	InsertWithEvent(ctx context.Context, o *domain.Order, e *domain.OrderCreatedEvent) error
+	InsertWithEvent(ctx context.Context, e *orderpkg.OrderCreated) error
 }
 
 // PairStore resolves trading pairs by their key so an order can be validated
@@ -16,13 +17,8 @@ type OrderRepo interface {
 type PairStore interface {
 	// ReadByKey returns the pair identified by key, or nil if no such pair is
 	// known.
-	ReadByKey(key domain.PairKey) *domain.Pair
+	ReadByKey(key pairpkg.PairKey) *pairpkg.Pair
 }
-
-type Event struct {
-}
-
-type CreateEvent func(o *domain.Order) *Event
 
 type Clock interface {
 	Now() time.Time
@@ -33,3 +29,12 @@ type ClockFunc func() time.Time
 func (f ClockFunc) Now() time.Time {
 	return f()
 }
+
+type Logger interface {
+	Info(msg string, fields ...any)
+	Warn(msg string, fields ...any)
+}
+
+type loggerKey int
+
+const LoggerKey loggerKey = 0
