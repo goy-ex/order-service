@@ -2,25 +2,13 @@ package domain
 
 import "strconv"
 
-// InvalidSideError indicates that the provided string does not
-// match any known Side value.
-type InvalidSideError struct {
-	Have string
-}
-
-func (e InvalidSideError) Error() string {
-	return "invalid side: " + e.Have
-}
-
 // Side describes the direction of an order: buy or sell.
 type Side byte
 
 const (
 	sideInvalid Side = 0
-
 	// SideBid represents a buy order.
 	SideBid Side = 1
-
 	// SideAsk represents a sell order.
 	SideAsk Side = 2
 )
@@ -47,6 +35,8 @@ func (s Side) String() string {
 		return "bid"
 	case SideAsk:
 		return "ask"
+	case sideInvalid:
+		return "invalid"
 	default:
 		return "invalid(" + strconv.Itoa(int(s)) + ")"
 	}
