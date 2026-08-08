@@ -27,8 +27,7 @@ type ServerConfig struct {
 	WriteTimeout      int    `env:"SERVER_WRITE_TIMEOUT"       envDefault:"10"`
 }
 
-type Config struct {
-	KafkaBrokers    string `env:"KAFKA_BROKERS,required"`
+type APIConfig struct {
 	DBConnString    string `env:"DB_CONN_STRING,required"`
 	Pairs           PairsConfig
 	Assets          AssetsConfig
@@ -36,8 +35,27 @@ type Config struct {
 	ShutdownTimeout int `env:"SHUTDOWN_TIMEOUT" envDefault:"10"`
 }
 
-func Load() (*Config, error) {
-	var config Config
+type OutboxWorkerConfig struct {
+	DBConnString string `env:"DB_CONN_STRING,required"`
+	PollingRate  int    `env:"POLLING_RATE"            envDefault:"30"`
+	BatchSize    int    `env:"BATCH_SIZE"              envDefault:"10"`
+	OrdersTopic  string `env:"ORDERS_TOPIC"`
+	KafkaBrokers string `env:"KAFKA_BROKERS"`
+}
+
+func LoadAPIConfig() (*APIConfig, error) {
+	var config APIConfig
+
+	err := env.Parse(&config)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse env: %w", err)
+	}
+
+	return &config, nil
+}
+
+func LoadOutboxWorkerConfig() (*OutboxWorkerConfig, error) {
+	var config OutboxWorkerConfig
 
 	err := env.Parse(&config)
 	if err != nil {
