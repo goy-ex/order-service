@@ -8,7 +8,7 @@ type Asset struct {
 
 func NewAsset(symbol string, name string, decimals int) (*Asset, error) {
 	if decimals < 0 {
-		return nil, &FieldNotPositiveError{FieldName: "Decimals", Value: decimals}
+		return nil, &NegativeNumberError{FieldName: "Decimals", Value: decimals}
 	}
 
 	return &Asset{
