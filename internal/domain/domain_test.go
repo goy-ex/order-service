@@ -19,7 +19,7 @@ func TestNewAsset(t *testing.T) {
 	}
 
 	testcases := map[string]testcase{
-		"valid": {
+		"decimals_positive": {
 			symbol:   "BTC",
 			name:     "Bitcoin",
 			decimals: 8,
@@ -39,10 +39,10 @@ func TestNewAsset(t *testing.T) {
 			check: func(t *testing.T, asset *domain.Asset, err error) {
 				t.Helper()
 
-				var target *domain.NotPositiveNumberError
-				require.ErrorAs(t, err, &target)
-				assert.Equal(t, "Decimals", target.FieldName)
-				assert.Equal(t, 0, target.Value)
+				require.NoError(t, err)
+				assert.Equal(t, "BTC", asset.Symbol)
+				assert.Equal(t, "Bitcoin", asset.Name)
+				assert.Equal(t, 0, asset.Decimals)
 			},
 		},
 		"decimals_negative": {
@@ -52,7 +52,7 @@ func TestNewAsset(t *testing.T) {
 			check: func(t *testing.T, asset *domain.Asset, err error) {
 				t.Helper()
 
-				var target *domain.NotPositiveNumberError
+				var target *domain.NegativeNumberError
 				require.ErrorAs(t, err, &target)
 				assert.Equal(t, "Decimals", target.FieldName)
 				assert.Equal(t, -1, target.Value)
