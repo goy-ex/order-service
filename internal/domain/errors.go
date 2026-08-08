@@ -2,13 +2,22 @@ package domain
 
 import "fmt"
 
-type FieldNotPositiveError struct {
+type NotPositiveNumberError struct {
 	Value     any
 	FieldName string
 }
 
-func (e *FieldNotPositiveError) Error() string {
+func (e *NotPositiveNumberError) Error() string {
 	return fmt.Sprintf("field %s must be positive, got: %v", e.FieldName, e.Value)
+}
+
+type NegativeNumberError struct {
+	Value     any
+	FieldName string
+}
+
+func (e *NegativeNumberError) Error() string {
+	return fmt.Sprintf("field %s must be not negative, got: %v", e.FieldName, e.Value)
 }
 
 type NoSuchOptionError struct {
