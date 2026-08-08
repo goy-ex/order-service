@@ -11,6 +11,131 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+type AggregateType string
+
+const (
+	AggregateTypeOrder AggregateType = "order"
+)
+
+func (e *AggregateType) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = AggregateType(s)
+	case string:
+		*e = AggregateType(s)
+	default:
+		return fmt.Errorf("unsupported scan type for AggregateType: %T", src)
+	}
+	return nil
+}
+
+type NullAggregateType struct {
+	AggregateType AggregateType
+	Valid         bool // Valid is true if AggregateType is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullAggregateType) Scan(value interface{}) error {
+	if value == nil {
+		ns.AggregateType, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.AggregateType.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullAggregateType) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.AggregateType), nil
+}
+
+type EventStatus string
+
+const (
+	EventStatusPending  EventStatus = "pending"
+	EventStatusResolved EventStatus = "resolved"
+)
+
+func (e *EventStatus) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = EventStatus(s)
+	case string:
+		*e = EventStatus(s)
+	default:
+		return fmt.Errorf("unsupported scan type for EventStatus: %T", src)
+	}
+	return nil
+}
+
+type NullEventStatus struct {
+	EventStatus EventStatus
+	Valid       bool // Valid is true if EventStatus is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullEventStatus) Scan(value interface{}) error {
+	if value == nil {
+		ns.EventStatus, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.EventStatus.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullEventStatus) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.EventStatus), nil
+}
+
+type EventType string
+
+const (
+	EventTypeOrderCreated   EventType = "order_created"
+	EventTypeOrderCancelled EventType = "order_cancelled"
+)
+
+func (e *EventType) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = EventType(s)
+	case string:
+		*e = EventType(s)
+	default:
+		return fmt.Errorf("unsupported scan type for EventType: %T", src)
+	}
+	return nil
+}
+
+type NullEventType struct {
+	EventType EventType
+	Valid     bool // Valid is true if EventType is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullEventType) Scan(value interface{}) error {
+	if value == nil {
+		ns.EventType, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.EventType.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullEventType) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.EventType), nil
+}
+
 type OrderSide string
 
 const (
@@ -56,8 +181,8 @@ func (ns NullOrderSide) Value() (driver.Value, error) {
 type PairStatus string
 
 const (
-	PairStatusHalted  PairStatus = "halted"
-	PairStatusTrading PairStatus = "trading"
+	PairStatusActive   PairStatus = "active"
+	PairStatusInactive PairStatus = "inactive"
 )
 
 func (e *PairStatus) Scan(src interface{}) error {
@@ -95,24 +220,25 @@ func (ns NullPairStatus) Value() (driver.Value, error) {
 	return string(ns.PairStatus), nil
 }
 
-type Order struct {
-	ID        pgtype.UUID
-	UserID    pgtype.UUID
-	PairBase  string
-	PairQuote string
-	Side      OrderSide
-	Price     int64
-	Amount    int64
-	Remaining int64
-	CreatedAt pgtype.Timestamptz
-}
-
-type Outbox struct {
+type Event struct {
 	ID            pgtype.UUID
 	AggregateID   pgtype.UUID
-	AggregateType string
-	EventType     string
+	AggregateType AggregateType
+	PartitionKey  pgtype.Text
+	EventType     EventType
 	Payload       []byte
 	CreatedAt     pgtype.Timestamptz
-	IsCommited    bool
+	Status        EventStatus
+}
+
+type Order struct {
+	ID           pgtype.UUID
+	UserID       pgtype.UUID
+	PairBase     string
+	PairQuote    string
+	Side         OrderSide
+	Price        int64
+	Qty          int64
+	RemainingQty int64
+	CreatedAt    pgtype.Timestamptz
 }
